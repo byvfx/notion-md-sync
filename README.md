@@ -118,6 +118,15 @@ notion-md-sync pull-workspace --directory ./my-notes
 
 # Skip confirmation prompts (useful for automation)
 notion-md-sync pull-workspace --yes
+
+# Pull all child pages from a specific parent page (useful for organized hierarchies)
+notion-md-sync pull-children --parent-id "your-parent-page-id"
+
+# Preview child pages without pulling them
+notion-md-sync pull-children --parent-id "your-parent-page-id" --dry-run
+
+# Pull child pages to a specific directory
+notion-md-sync pull-children --parent-id "your-parent-page-id" --directory ./my-notes --yes
 ```
 
 ### Other Commands

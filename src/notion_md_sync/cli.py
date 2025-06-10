@@ -213,6 +213,107 @@ def pull_workspace(ctx, query, directory, dry_run, yes):
 
 
 @cli.command()
+@click.option("--parent-id", required=True, help="Notion page ID to pull child pages from")
+@click.option("--directory", default=None, help="Directory to save pulled markdown files")
+@click.option("--dry-run", is_flag=True, help="Show pages that would be pulled without actually pulling")
+@click.option("--yes", is_flag=True, help="Skip confirmation prompts")
+@click.pass_context
+def pull_children(ctx, parent_id, directory, dry_run, yes):
+    """Pull all child pages from a specific Notion parent page."""
+    config = ctx.obj['CONFIG']
+    
+    # Initialize sync engine
+    from .sync_engine import SyncEngine
+    sync_engine = SyncEngine(config)
+    
+    # Set directory for pulled files
+    if directory:
+        pull_directory = directory
+    else:
+        pull_directory = config.get("directories.markdown_root", "./docs")
+    
+    os.makedirs(pull_directory, exist_ok=True)
+    
+    try:
+        # First get the parent page to show its title
+        try:
+            parent_page = sync_engine.notion_client.get_page(parent_id)
+            parent_title = parent_page.get("properties", {}).get("title", {}).get("title", [{}])[0].get("text", {}).get("content", "Unknown")
+            click.echo(f"Getting child pages from: {parent_title}")
+        except Exception as e:
+            click.echo(f"Warning: Could not access parent page {parent_id}: {str(e)}")
+            parent_title = "Unknown"
+        
+        # Get child pages
+        child_pages = sync_engine.notion_client.get_child_pages(parent_id)
+        
+        if not child_pages:
+            click.echo(f"No child pages found under '{parent_title}'.")
+            return
+        
+        click.echo(f"Found {len(child_pages)} child page(s):")
+        
+        if dry_run:
+            click.echo("Dry run - the following child pages would be pulled:")
+            for page in child_pages:
+                title = page.get("properties", {}).get("title", {}).get("title", [{}])[0].get("text", {}).get("content", "Untitled")
+                page_id = page.get("id", "")
+                click.echo(f"  {title} (ID: {page_id})")
+            return
+        
+        # Confirm with user
+        if not yes and not click.confirm(f"Pull {len(child_pages)} child page(s) from '{parent_title}' to {pull_directory}?"):
+            click.echo("Pull cancelled.")
+            return
+        
+        # Pull each child page
+        success_count = 0
+        failure_count = 0
+        
+        with click.progressbar(child_pages, label="Pulling child pages from Notion") as page_list:
+            for page in page_list:
+                page_id = page.get("id", "")
+                title = page.get("properties", {}).get("title", {}).get("title", [{}])[0].get("text", {}).get("content", "Untitled")
+                
+                # Create filename from title
+                filename = "".join([c if c.isalnum() or c in [' ', '-', '_'] else '' for c in title])
+                filename = filename.replace(' ', '-').lower()
+                if not filename:
+                    filename = f"untitled-{page_id[:8]}"
+                
+                file_path = os.path.join(pull_directory, f"{filename}.md")
+                
+                # Handle duplicate filenames
+                counter = 1
+                original_file_path = file_path
+                while os.path.exists(file_path):
+                    name, ext = os.path.splitext(original_file_path)
+                    file_path = f"{name}-{counter}{ext}"
+                    counter += 1
+                
+                try:
+                    success, message = sync_engine.sync_notion_to_file(page_id, file_path)
+                    if success:
+                        success_count += 1
+                    else:
+                        failure_count += 1
+                        click.echo(f"\nFailed to pull '{title}': {message}")
+                except Exception as e:
+                    failure_count += 1
+                    click.echo(f"\nError pulling '{title}': {str(e)}")
+        
+        # Show results
+        click.echo(f"\nPull completed:")
+        click.echo(f"  Successfully pulled: {success_count}")
+        click.echo(f"  Failed: {failure_count}")
+        click.echo(f"  Files saved to: {pull_directory}")
+        
+    except Exception as e:
+        click.echo(f"Error getting child pages: {str(e)}")
+        sys.exit(1)
+
+
+@cli.command()
 @click.option("--directory", default=None, help="Directory containing markdown files to sync (defaults to config's markdown_root)")
 @click.option("--dry-run", is_flag=True, help="Show files that would be synced without actually syncing")
 @click.option("--direction", type=click.Choice(['push', 'pull']), default='push',

@@ -248,3 +248,34 @@ class NotionClient:
             List of page data.
         """
         return self.search_pages(query="", filter_pages=True, filter_databases=False)
+
+    def get_child_pages(self, parent_page_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all child pages of a specific parent page.
+
+        Args:
+            parent_page_id: ID of the parent page.
+
+        Returns:
+            List of child page data.
+        """
+        self._handle_rate_limits()
+        
+        # Get all blocks from the parent page
+        blocks = self.get_page_blocks(parent_page_id)
+        
+        child_pages = []
+        for block in blocks:
+            # Check if block is a child page
+            if block.get("type") == "child_page":
+                child_page_id = block.get("id")
+                if child_page_id:
+                    try:
+                        # Get the full page data
+                        page_data = self.get_page(child_page_id)
+                        child_pages.append(page_data)
+                    except Exception as e:
+                        print(f"Warning: Could not access child page {child_page_id}: {str(e)}")
+                        continue
+        
+        return child_pages
