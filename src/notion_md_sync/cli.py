@@ -47,8 +47,8 @@ def init(ctx, config):
 
 
 @cli.command()
-@click.option("--file", required=True, help="Markdown file to sync")
-@click.option("--direction", type=click.Choice(['push', 'pull']), default='push',
+@click.option("-f", "--file", required=True, help="Markdown file to sync")
+@click.option("-d", "--direction", type=click.Choice(['push', 'pull']), default='push',
               help="Sync direction: push (markdown to Notion) or pull (Notion to markdown)")
 @click.pass_context
 def sync(ctx, file, direction):
@@ -119,10 +119,10 @@ def sync(ctx, file, direction):
 
 
 @cli.command()
-@click.option("--query", default="", help="Search query for Notion pages (empty = all accessible pages)")
-@click.option("--directory", default=None, help="Directory to save pulled markdown files")
-@click.option("--dry-run", is_flag=True, help="Show pages that would be pulled without actually pulling")
-@click.option("--yes", is_flag=True, help="Skip confirmation prompts")
+@click.option("-q", "--query", default="", help="Search query for Notion pages (empty = all accessible pages)")
+@click.option("--dir", "--directory", default=None, help="Directory to save pulled markdown files")
+@click.option("--dr", "--dry-run", is_flag=True, help="Show pages that would be pulled without actually pulling")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompts")
 @click.pass_context
 def pull_workspace(ctx, query, directory, dry_run, yes):
     """Discover and pull pages from Notion workspace."""
@@ -213,10 +213,10 @@ def pull_workspace(ctx, query, directory, dry_run, yes):
 
 
 @cli.command()
-@click.option("--parent-id", required=True, help="Notion page ID to pull child pages from")
-@click.option("--directory", default=None, help="Directory to save pulled markdown files")
-@click.option("--dry-run", is_flag=True, help="Show pages that would be pulled without actually pulling")
-@click.option("--yes", is_flag=True, help="Skip confirmation prompts")
+@click.option("--pid", "--parent-id", required=True, help="Notion page ID to pull child pages from")
+@click.option("--dir", "--directory", default=None, help="Directory to save pulled markdown files")
+@click.option("--dr", "--dry-run", is_flag=True, help="Show pages that would be pulled without actually pulling")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompts")
 @click.pass_context
 def pull_children(ctx, parent_id, directory, dry_run, yes):
     """Pull all child pages from a specific Notion parent page."""
@@ -314,9 +314,9 @@ def pull_children(ctx, parent_id, directory, dry_run, yes):
 
 
 @cli.command()
-@click.option("--directory", default=None, help="Directory containing markdown files to sync (defaults to config's markdown_root)")
-@click.option("--dry-run", is_flag=True, help="Show files that would be synced without actually syncing")
-@click.option("--direction", type=click.Choice(['push', 'pull']), default='push',
+@click.option("--dir", "--directory", default=None, help="Directory containing markdown files to sync (defaults to config's markdown_root)")
+@click.option("--dr", "--dry-run", is_flag=True, help="Show files that would be synced without actually syncing")
+@click.option("-d", "--direction", type=click.Choice(['push', 'pull']), default='push',
               help="Sync direction: push (markdown to Notion) or pull (Notion to markdown)")
 @click.pass_context
 def sync_all(ctx, directory, dry_run, direction):
@@ -431,7 +431,7 @@ def sync_all(ctx, directory, dry_run, direction):
 
 @cli.command()
 @click.option("--daemon/--no-daemon", default=False, help="Run as a daemon")
-@click.option("--direction", type=click.Choice(['push', 'pull', 'both']), default='push',
+@click.option("-d", "--direction", type=click.Choice(['push', 'pull', 'both']), default='push',
               help="Sync direction: push (markdown to Notion), pull (Notion to markdown), or both")
 @click.pass_context
 def watch(ctx, daemon, direction):

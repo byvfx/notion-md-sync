@@ -86,47 +86,47 @@ The tool supports both push (markdown → Notion) and pull (Notion → markdown)
 
 ```bash
 # Push a single markdown file to Notion
-notion-md-sync sync --file path/to/markdown.md --direction push
+notion-md-sync sync -f path/to/markdown.md -d push
 
 # Push all markdown files to Notion
-notion-md-sync sync-all --direction push
+notion-md-sync sync-all -d push
 
 # Preview which files would be pushed without actually syncing
-notion-md-sync sync-all --dry-run --direction push
+notion-md-sync sync-all --dr -d push
 ```
 
 ### Pull (Notion to Markdown)
 
 ```bash
 # Pull from Notion to a markdown file (requires existing file with notion_page_id in frontmatter)
-notion-md-sync sync --file path/to/markdown.md --direction pull
+notion-md-sync sync -f path/to/markdown.md -d pull
 
 # Pull all linked Notion pages to their corresponding markdown files
-notion-md-sync sync-all --direction pull
+notion-md-sync sync-all -d pull
 
 # Discover and pull pages from your Notion workspace (recommended for new setups)
 notion-md-sync pull-workspace
 
 # Pull specific pages using search query
-notion-md-sync pull-workspace --query "project notes"
+notion-md-sync pull-workspace -q "project notes"
 
 # Preview what pages would be pulled without actually downloading them
-notion-md-sync pull-workspace --dry-run
+notion-md-sync pull-workspace --dr
 
 # Pull to a specific directory
-notion-md-sync pull-workspace --directory ./my-notes
+notion-md-sync pull-workspace --dir ./my-notes
 
 # Skip confirmation prompts (useful for automation)
-notion-md-sync pull-workspace --yes
+notion-md-sync pull-workspace -y
 
 # Pull all child pages from a specific parent page (useful for organized hierarchies)
-notion-md-sync pull-children --parent-id "your-parent-page-id"
+notion-md-sync pull-children --pid "your-parent-page-id"
 
 # Preview child pages without pulling them
-notion-md-sync pull-children --parent-id "your-parent-page-id" --dry-run
+notion-md-sync pull-children --pid "your-parent-page-id" --dr
 
 # Pull child pages to a specific directory
-notion-md-sync pull-children --parent-id "your-parent-page-id" --directory ./my-notes --yes
+notion-md-sync pull-children --pid "your-parent-page-id" --dir ./my-notes -y
 ```
 
 ### Other Commands
@@ -139,10 +139,10 @@ notion-md-sync init --config config/config.yaml
 notion-md-sync verify
 
 # Sync files from a specific directory
-notion-md-sync sync-all --directory /path/to/my/notes
+notion-md-sync sync-all --dir /path/to/my/notes
 
 # Watch for changes and sync in real-time (in both directions)
-notion-md-sync watch --direction both
+notion-md-sync watch -d both
 ```
 
 ## Features
@@ -156,7 +156,6 @@ notion-md-sync watch --direction both
 - Support for various markdown elements (headings, lists, code blocks, etc.)
 - Search functionality for selective page pulling
 - Configurable sync behavior
-- Git integration for version control
 - Real-time watching with selectable direction
 - Dry-run mode for previewing changes
 
