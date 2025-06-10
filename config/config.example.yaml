@@ -1,0 +1,16 @@
+notion:
+  token: ""  # Your Notion API token (can be set using NOTION_TOKEN env var)
+  parent_page_id: ""  # Parent page/database ID (can be set using NOTION_PARENT_PAGE_ID env var)
+
+sync:
+  direction: "markdown_to_notion"  # Options: markdown_to_notion, notion_to_markdown, bidirectional
+  conflict_resolution: "newer"  # Options: newer, manual, markdown_wins, notion_wins
+
+directories:
+  markdown_root: "./docs"
+  excluded_patterns: 
+    - "*.tmp"
+    - "node_modules/**"
+
+mapping:
+  strategy: "frontmatter"  # Options: frontmatter, filename
